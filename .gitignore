@@ -1,0 +1,136 @@
+# .gitignore for Bank Management System with MySQL and React
+
+# Node.js and React
+node_modules/
+build/  # Production build output
+dist/  # Alternative build output (e.g., for some bundlers)
+.next/ # Next.js specific
+out/    # Another possible output directory
+yarn-error.log
+package-lock.json # or yarn.lock if you use Yarn
+**/coverage/ # Test coverage reports
+.DS_Store # macOS file
+
+# MySQL
+*.sql
+!/path/to/your/database.sql # Important: Keep your main schema file, but exclude data dumps. Adjust the path!
+*.dump
+*.log
+# If you have a config file with sensitive data:
+config.js
+.env
+.env.*
+!.env.example # Keep the example, but not the actual config.
+
+# IDE specific
+.idea/    # IntelliJ/WebStorm
+.vscode/  # VSCode
+*.suo     # Visual Studio
+*.swp     # Swap files
+*~       # Backup files
+tmp/     # Temporary files
+temp/    # More temp files
+
+# IntelliJ/JetBrains
+*.iml
+*.ipr
+*.iws
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/dictionaries
+.idea/shelf/
+.idea/dataSources/
+.idea_modules/
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+_vti*
+*.log
+
+# macOS
+.DS_Store
+._*
+.Spotlight*
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+
+# Build output
+*.o
+*.ko
+*.so
+*.a
+*.exe
+*.dll
+*.pyc # Python compiled files
+*.class # Java class files
+*.jar
+*.war
+*.ear
+*.ipk
+*.apk
+
+# Dependency directories
+/deps
+/buildcache
+
+# Logs
+*.log
+/logs
+*-debug.log
+
+# Temporary files
+/tmp
+/temp
+*~
+\#*#
+*.bak
+*.swp
+*.swo
+
+# Certificates
+*.pem
+*.crt
+*.key
+*.p12
+*.jks
+
+# SSH
+/ssh
+/id_rsa
+/id_rsa.pub
+/id_dsa
+/id_dsa.pub
+/known_hosts
+
+# Docker
+/docker_build/
+docker-compose.log
+
+# Yarn
+yarn-debug.log*
+.pnp
+.pnp.js
+
+# npm
+npm-debug.log*
+
+# Databases
+*.sqlite
+*.sqlite-journal
+*.mdb
+*.mdf
+*.ldf
+
+# Text editor/IDE specific
+.history
+.tmproj
+*.sublime-project
+*.sublime-workspace
+
+# OS generated files
+.localized
+.AppleDouble
