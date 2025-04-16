@@ -44,7 +44,7 @@ Create a `.env` file in the `backend/` directory. Add the following database con
 ```env
 DB_HOST=localhost
 DB_USER=root
-DB_PASSWORD=
+DB_PASSWORD= ``
 DB_NAME=BankingSystem
 PORT=5000
 ```
