@@ -35,8 +35,8 @@ Follow these steps to set up the project:
 
 ### Clone the repository:
 ```bash
-git clone <your_repository_url>
-cd <your_repository_name>
+git clone https://github.com/Ash-the-k/SimpleBankingSystemv2.git
+cd SimpleBankingSystemv2
 ```
 
 ### Backend Configuration:
