@@ -13,9 +13,12 @@ package-lock.json # or yarn.lock if you use Yarn
 
 # MySQL
 *.sql
-!/path/to/your/database.sql # Important: Keep your main schema file, but exclude data dumps. Adjust the path!
+!backend/sql/initialDBSetup.sql
+!backend/sql/SimpleBankingManagementSystemVF.sql
 *.dump
 *.log
+
+
 # If you have a config file with sensitive data:
 config.js
 .env
