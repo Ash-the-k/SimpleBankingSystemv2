@@ -137,6 +137,22 @@ exports.approveRequest = async (req, res) => {
         [request.Amount, request.ReceiverAcc]
       );
     }
+    else if (request.Type === 'Transfer') {
+      await connection.query(
+        'UPDATE ACCOUNT SET Balance = Balance - ? WHERE AccountNo = ?',
+        [request.Amount, request.SenderAcc]
+      );
+      await connection.query(
+        'UPDATE ACCOUNT SET Balance = Balance + ? WHERE AccountNo = ?',
+        [request.Amount, request.ReceiverAcc]
+      );
+      await connection.query(
+        `INSERT INTO TRANSACTIONS 
+        (SenderAcc, ReceiverAcc, Amount, Type, Status, CustomerID, EmployeeID)
+        VALUES (?, ?, ?, 'Transfer', 'Approved', ?, ?)`,
+        [request.SenderAcc, request.ReceiverAcc, request.Amount, request.CustomerID, employeeId]
+      );
+    }
 
     // 3. Record the transaction
     await connection.query(
@@ -224,5 +240,94 @@ exports.withdraw = async (req, res) => {
     res.json({ message: 'Withdrawal successful' });
   } catch (error) {
     res.status(500).json({ message: error.message });
+  }
+};
+
+// Add this new transfer method
+exports.transfer = async (req, res) => {
+  const connection = await db.getConnection();
+  try {
+    const { senderAcc, receiverAcc, amount, employeeId } = req.body;
+    const amountNum = Number(amount);
+
+    await connection.beginTransaction();
+
+    // 1. Verify sender account
+    const [sender] = await connection.query(
+      'SELECT Balance, Status, CustomerID FROM ACCOUNT WHERE AccountNo = ?',
+      [senderAcc]
+    );
+    if (sender.length === 0) {
+      await connection.rollback();
+      return res.status(404).json({ message: 'Sender account not found' });
+    }
+    if (sender[0].Status !== 'Active') {
+      await connection.rollback();
+      return res.status(400).json({ message: 'Sender account not active' });
+    }
+
+    // 2. Verify receiver account
+    const [receiver] = await connection.query(
+      'SELECT Status FROM ACCOUNT WHERE AccountNo = ?',
+      [receiverAcc]
+    );
+    if (receiver.length === 0) {
+      await connection.rollback();
+      return res.status(404).json({ message: 'Receiver account not found' });
+    }
+    if (receiver[0].Status !== 'Active') {
+      await connection.rollback();
+      return res.status(400).json({ message: 'Receiver account not active' });
+    }
+
+    // 3. Check sufficient balance
+    if (sender[0].Balance < amountNum) {
+      await connection.rollback();
+      return res.status(400).json({ message: 'Insufficient funds' });
+    }
+
+    // 4. Check if high-value transfer
+    if (amountNum > 50000) {
+      const [result] = await connection.query(
+        `INSERT INTO TRANSACTION_REQUESTS 
+        (CustomerID, SenderAcc, ReceiverAcc, Amount, Type, RequestedBy)
+        VALUES (?, ?, ?, ?, 'Transfer', ?)`,
+        [sender[0].CustomerID, senderAcc, receiverAcc, amountNum, employeeId]
+      );
+      await connection.commit();
+      return res.json({ 
+        message: 'Transfer requires approval',
+        requestId: result.insertId
+      });
+    }
+
+    // 5. Process immediate transfer
+    await connection.query(
+      'UPDATE ACCOUNT SET Balance = Balance - ? WHERE AccountNo = ?',
+      [amountNum, senderAcc]
+    );
+    await connection.query(
+      'UPDATE ACCOUNT SET Balance = Balance + ? WHERE AccountNo = ?',
+      [amountNum, receiverAcc]
+    );
+    await connection.query(
+      `INSERT INTO TRANSACTIONS 
+      (SenderAcc, ReceiverAcc, Amount, Type, Status, CustomerID, EmployeeID)
+      VALUES (?, ?, ?, 'Transfer', 'Approved', ?, ?)`,
+      [senderAcc, receiverAcc, amountNum, sender[0].CustomerID, employeeId]
+    );
+
+    await connection.commit();
+    res.json({ message: 'Transfer completed successfully' });
+
+  } catch (error) {
+    await connection.rollback();
+    console.error('Transfer error:', error);
+    res.status(500).json({ 
+      message: 'Transfer failed',
+      error: error.message
+    });
+  } finally {
+    connection.release();
   }
 };
