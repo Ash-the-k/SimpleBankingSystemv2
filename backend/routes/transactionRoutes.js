@@ -2,9 +2,12 @@ const express = require('express');
 const router = express.Router();
 const transactionController = require('../controllers/transactionController');
 
+// Make sure these match exactly with your controller exports
 router.get('/', transactionController.getAllTransactions);
 router.get('/customer/:customerId', transactionController.getCustomerTransactions);
 router.post('/deposit', transactionController.deposit);
-// Add routes for withdraw and transfer
+router.get('/requests/pending', transactionController.getPendingRequests);
+router.post('/withdraw', transactionController.withdraw);
+router.post('/approve', transactionController.approveRequest); 
 
 module.exports = router;
